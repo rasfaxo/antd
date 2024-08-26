@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Form, Input, Button, Alert, Checkbox } from "antd";
+import { Form, Input, Button, Checkbox } from "antd";
 import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import { NavLink } from "react-router-dom";
 import supabase from "../connector";
+import AlertMessage from "./Alert";
 
 const Register = () => {
   const [errPass, setErrPass] = useState(false);
@@ -33,20 +34,18 @@ const Register = () => {
     <div className="flex items-center justify-center h-screen bg-gray-100">
       {
         errPass && (
-          <Alert
-            message="Password tidak sama"
-            type="error"
-            showIcon
-            closable
-            onClose={() => setErrPass(false)}
-            className="absolute top-10 left-4"
+            <AlertMessage
+          message={"Password not match"}
+          type={"warning"}
+          onClose={()=>{setErrPass(false)}}
+          className="absolute top-10 left-4"
           />
         )
       }
       {
         success && (
-          <Alert
-            message="Registrasi berhasil"
+          <AlertMessage
+            message="Registration success"
             type="success"
             showIcon
             closable
@@ -57,16 +56,16 @@ const Register = () => {
       }
       
       <div className="flex bg-white shadow-md rounded-lg overflow-hidden">
-        <div className="flex-shrink-0 bg-blue-100 p-8 w-[400px] h-[400px]">
+        <div className="flex-shrink-0 p-8 w-[400px] h-[400px]">
           <img
-            src="https://mixkit.imgix.net/art/preview/mixkit-left-handed-man-sitting-at-a-table-writing-in-a-notebook-27-original-large.png?q=80&auto=format%2Ccompress&h=500"
+            src="/src/assets/images/bgRegister.jpg"
             alt="Register"
-            className="w-84 h-84 object-cover rounded-md"
+            className="w-full h-full object-cover rounded-md"
           />
         </div>
         {/* form */}
         <div className="p-8 w-[400px] h-[400px]">
-          <h1 className="text-2xl font-bold mb-4 text-center">Sign In</h1>
+          <h1 className="text-2xl font-bold mb-4 text-center">Sign Up</h1>
           <Form
             layout="vertical"
             onFinish={handleSubmit}
@@ -95,8 +94,8 @@ const Register = () => {
                   message: "Please input your Password!",
                 },
                 {
-                  min: 8,
-                  message: "Password must be at least 8 characters long!"
+                  min: 6,
+                  message: "Password must be at least 6 characters long!"
                 },
               ]}
             >
@@ -125,7 +124,6 @@ const Register = () => {
               <Form.Item name="remember" valuePropName="checked" noStyle>
                 <Checkbox>Remember me</Checkbox>
               </Form.Item>
-              <NavLink to="/#" className="float-right">Forgot password</NavLink>
             </Form.Item>
             
             <Form.Item>
