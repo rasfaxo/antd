@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import {UserOutlined, HomeOutlined, SettingOutlined, OpenAIFilled  } from '@ant-design/icons'
+import {UserOutlined, HomeOutlined, SettingOutlined, OpenAIFilled, RightOutlined } from '@ant-design/icons'
 import { Breadcrumb, Layout, Menu, theme, Button, Input } from 'antd'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { AiOutlineLogout } from 'react-icons/ai'
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
+import supabase from '../connector'
 
 const MainLayout = () => {
     const navigate = useNavigate();
@@ -31,7 +32,7 @@ const MainLayout = () => {
         label: 'Settings',
       },
       {
-        key:'/logout',
+        key:'logout',
         label:'Logout',
         icon:<AiOutlineLogout/>,
         onClick: ()=>{
@@ -39,9 +40,10 @@ const MainLayout = () => {
             if (!conf) {
                 return
             }
-        supabase.auth.signOut()
-        .then((res)=>{
-        alert("Anda berhasil Logout")
+            supabase.auth.signOut()
+            .then((res)=>{
+            alert("Anda berhasil Logout")
+            navigate('/')
         })
         },
         style: {
@@ -82,7 +84,7 @@ const MainLayout = () => {
               onClick={() => setCollapsed(!collapsed)}
               className='text-base w-[64px]'
             />
-            <Breadcrumb style={{ marginLeft: '16px' }}>
+            <Breadcrumb className='ml-4 font-semibold' separator={<RightOutlined className='text-gray-400 size-3'/>}>
               <Breadcrumb.Item>Dashboard</Breadcrumb.Item>
               {location.pathname !== '/' && (
                 <Breadcrumb.Item>
@@ -91,13 +93,14 @@ const MainLayout = () => {
               )}
             </Breadcrumb>
           </Header>
+        
           <Content
             className='p-6 m-0'
             style={{
               background: colorBgContainer,
               borderRadius: borderRadiusLG,
               overflow: 'hidden',
-              height: 'calc(100vh - 64px)', // Adjust height to fit screen
+              height: 'calc(100vh - 64px)',
             }}
             
           >
