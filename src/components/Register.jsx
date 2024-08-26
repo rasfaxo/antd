@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Form, Input, Button, Alert, Checkbox } from "antd";
 import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import { NavLink } from "react-router-dom";
-import supabase from "../../connector";
+import supabase from "../connector";
 
 const Register = () => {
   const [errPass, setErrPass] = useState(false);

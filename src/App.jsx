@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import Login from "./assets/components/Login";
+import Login from "./components/Login";
 import { Routes, Route } from "react-router-dom";
-import Register from "./assets/components/Register";
-import Layout from "./assets/screen/Layout";
+import Register from "./components/Register";
+import Layout from "./pages/Layout";
 
 const App = () => {
   const [session, setSession] = useState(false);
