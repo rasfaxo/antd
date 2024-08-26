@@ -1,12 +1,48 @@
-import React from "react";
+import React, { useState } from "react";
 import { Form, Input, Checkbox, Button } from "antd";
 import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import { NavLink } from "react-router-dom";
+import supabase from "../connector";
+import AlertMessage from "./Alert";
 
 const Login = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  
+
+  function handleSubmit(e) {
+    setLoading(true);
+    let { email, password } = e;
+    supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      })
+      .then((res) => {
+        console.log(res);
+        setLoading(false);
+        if (res.error) {
+          setError(true);
+        }
+      });
+  }
+
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
-      <Form className="w-96 p-6 bg-white rounded-md shadow-md" layout="vertical">
+      {
+        error && (
+          <AlertMessage
+            message={"Email or Password is wrong"}
+            type={"warning"}
+            onClose={()=>{setError(false)}}
+            className="absolute top-10 left-4"
+          />
+        )
+      }
+      <Form
+        className="w-96 p-6 bg-white rounded-md shadow-md"
+        layout="vertical"
+        onFinish={handleSubmit}
+      >
         <h1 className="text-4xl font-bold mb-5 text-center">Login</h1>
         <Form.Item
           name="email"
@@ -18,10 +54,7 @@ const Login = () => {
             },
           ]}
         >
-          <Input
-            prefix={<MailOutlined />}
-            placeholder="Email"
-          />
+          <Input prefix={<MailOutlined />} placeholder="Email" />
         </Form.Item>
 
         <Form.Item
@@ -50,10 +83,12 @@ const Login = () => {
         </Form.Item>
 
         <Form.Item style={{ marginBottom: "0px" }}>
-          <Button block="true" type="primary" htmlType="submit">
+          <Button block="true" type="primary" htmlType="submit" loading={loading} disabled={loading}>
             Log in
           </Button>
-          <div style={{ marginTop: "1rem", textAlign: "center", width: "100%" }}>
+          <div
+            style={{ marginTop: "1rem", textAlign: "center", width: "100%" }}
+          >
             <span style={{ color: "#333" }}>Don't have an account?</span>{" "}
             <NavLink to="/register">Sign up now</NavLink>
           </div>
