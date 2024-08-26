@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Input, Button, Checkbox } from "antd";
 import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import { NavLink } from "react-router-dom";
@@ -9,6 +9,7 @@ const Register = () => {
   const [errPass, setErrPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(null);
 
   function handleSubmit(e) {
     setLoading(true);
@@ -23,12 +24,31 @@ const Register = () => {
       password : password 
     })
     .then((res) => {
-      console.log(res)
+      if (res.error) {
+        setError(res.error.message);
+        setLoading(false);
+        return;
+      }
       setLoading(false);
       setSuccess(true);
       e.target.reset();
+    })
+    .catch((err) => {
+      setError(err.message);
+      setLoading(false);
     });
   }
+
+  useEffect(() => {
+    if (errPass || success || error) {
+      const timer = setTimeout(() => {
+        setErrPass(false);
+        setSuccess(false);
+        setError(null);
+      }, 3000); 
+      return () => clearTimeout(timer);
+    }
+  }, [errPass, success, error]);
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
@@ -37,8 +57,8 @@ const Register = () => {
             <AlertMessage
           message={"Password not match"}
           type={"warning"}
-          onClose={()=>{setErrPass(false)}}
-          className="absolute top-10 left-4"
+          description={"Please check your password"}
+          // className="absolute top-10 left-4"
           />
         )
       }
@@ -47,10 +67,8 @@ const Register = () => {
           <AlertMessage
             message="Registration success"
             type="success"
-            showIcon
-            closable
-            onClose={() => setSuccess(false)}
-            className="absolute top-10 left-4"
+            description={"Please check your email to verify your account"}
+            // className="absolute top-10 left-4"
           />
         )
       }
