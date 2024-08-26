@@ -6,7 +6,6 @@ const ModalForm = ({open, onCancel, onOk, title, children}) => {
     <div>
         <Modal
         open={open}
-        footer={false}
         onCancel={onCancel}
         onOk={onOk}
         title={title}
