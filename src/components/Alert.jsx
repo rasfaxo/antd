@@ -1,17 +1,25 @@
-import React from 'react'
-import { Alert } from 'antd'
+import React, { useEffect, useState } from "react";
+import { notification } from "antd";
 
-const AlertMessage = ({message, type, onClose, className}) => {
-  return (
-    <Alert
-      message={message}
-      type={type}
-      showIcon
-      closable
-      onClose={onClose}
-      className={className}
-    />
-  )
-}
+const AlertMessage = ({ type, message, description }) => {
+  const [api, contextHolder] = notification.useNotification();
 
-export default AlertMessage
+  const openNotification = () => {
+    if (['success', 'info', 'warning', 'error'].includes(type)) {
+      api[type]({
+        message: message,
+        description: description,
+      });
+    } else {
+      console.error(`Invalid notification type: ${type}`);
+    }
+  };
+
+  useEffect(() => {
+    openNotification();
+  }, [message, description, type]); 
+
+  return <>{contextHolder}</>;
+};
+
+export default AlertMessage;
