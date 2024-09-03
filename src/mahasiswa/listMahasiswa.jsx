@@ -1,4 +1,13 @@
-import { Modal, Table, Popconfirm, Button, message, FloatButton, Avatar, Input } from "antd";
+import {
+  Modal,
+  Table,
+  Popconfirm,
+  Button,
+  message,
+  FloatButton,
+  Avatar,
+  Input,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import supabase from "../connector";
 import ModalForm from "../components/ModalForm";
@@ -6,6 +15,7 @@ import Chance from "chance";
 import { IoIosAdd } from "react-icons/io";
 import { IoFilterSharp } from "react-icons/io5";
 import ModalFormEdit from "../components/ModalFormEdit";
+import { useQuery } from "@tanstack/react-query";
 
 const ListMahasiswa = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -17,7 +27,7 @@ const ListMahasiswa = () => {
 
   const chance = new Chance();
   const { confirm } = Modal;
-  const { Search} = Input;
+  const { Search } = Input;
   const { success } = message;
 
   //handle generate fake data
@@ -55,6 +65,7 @@ const ListMahasiswa = () => {
   function handleRefresh() {
     setRefresh((prev) => !prev);
   }
+
   // column table
   const column = [
     // {
@@ -155,26 +166,51 @@ const ListMahasiswa = () => {
   }
 
   function handleSearch(e) {
+    if (e !== "") {
+      supabase
+        .from("mahasiswa")
+        .select("*")
+        .ilike("name", `%${e}%`)
+        .order("id", { ascending: false })
+        .then((res) => {
+          setDataMhs(res.data);
+        });
+    }
     supabase
       .from("mahasiswa")
       .select("*")
-      .ilike("name", `%${e}%`)
       .order("id", { ascending: false })
       .then((res) => {
         setDataMhs(res.data);
       });
+    return;
   }
 
   //fetch data
-  useEffect(() => {
-    supabase
-      .from("mahasiswa")
-      .select("*")
-      .order("id", { ascending: false })
-      .then((res) => {
-        setDataMhs(res.data);
-      });
-  }, [refresh]);
+  // useEffect(() => {
+  //   supabase
+  //     .from("mahasiswa")
+  //     .select("*")
+  //     .order("id", { ascending: false })
+  //     .then((res) => {
+  //       setDataMhs(res.data);
+  //     });
+  // }, [refresh]);
+
+  const { data, isLoading, refetch, isError } = useQuery({
+    queryKey: ["read_mhs"],
+    queryFn: async () => {
+      try {
+        const response = await supabase
+          .from("mahasiswa")
+          .select("*")
+          .order("id", { ascending: false });
+        return response.data;
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  });
 
   return (
     <main className="font-sans">
@@ -204,18 +240,18 @@ const ListMahasiswa = () => {
             </p>
           </div>
           <div className="flex items-center space-x-2">
-              <Search
-                allowClear
-                enterButton
-                onSearch={handleSearch}
-                placeholder="Search"
-                className="w-[200px]  rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            <button className="px-4 py-[5px] border border-gray-300 rounded-md flex items-center gap-2 text-gray-500">
+            <Search
+              allowClear
+              enterButton
+              onSearch={handleSearch}
+              placeholder="Search"
+              className="w-[200px]  rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+            <button className="px-4 py-[5px] border border-gray-300 rounded-md flex items-center gap-2 text-gray-500 hover:border-gray-500 transition-all duration-300">
               <IoFilterSharp className="text-gray-500" /> Filters
             </button>
             <button
-              className="px-2 py-[5px] bg-black r text-white rounded-md flex items-center"
+              className="px-2 py-[5px] bg-black r text-white rounded-md flex items-center hover:bg-black/80 transition-all duration-300"
               onClick={() => setOpenModal(true)}
             >
               <IoIosAdd size={21} /> Add user
@@ -242,7 +278,7 @@ const ListMahasiswa = () => {
             rowKey="id"
             columns={column}
             rowSelection={rowSelection}
-            dataSource={dataMhs}
+            dataSource={data || []}
             pagination={{ pageSize: 6, position: ["bottomCenter"] }}
           />
         </div>
