@@ -72,7 +72,7 @@ const MainLayout = () => {
           collapsed={collapsed}
           style={{ overflow: "hidden" }}
         >
-          <div className="p-7 text-center flex items-center justify-center gap-1">
+          <div className="p-7 text-center flex items-center justify-center gap-1 bg-black">
             <OpenAIFilled className="text-white text-2xl" />
             <h1 className={`text-white text-2xl ${collapsed ? "hidden" : ""}`}>
               ChatGPT.
@@ -83,7 +83,7 @@ const MainLayout = () => {
             mode="inline"
             theme="dark"
             defaultSelectedKeys={[location.pathname]}
-            className="h-full"
+            className="h-full bg-black"
             items={itemsTop}
             onClick={({ key }) => navigate(key)}
           />
@@ -91,7 +91,7 @@ const MainLayout = () => {
             mode="inline"
             theme="dark"
             inlineCollapsed={collapsed}
-            className="h-full"
+            className="h-full bg-black"
             items={itemsBottom}
           />
         </Sider>
