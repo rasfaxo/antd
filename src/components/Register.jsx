@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Checkbox } from "antd";
+import { Form, Input, Button, Checkbox, message } from "antd";
 import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import { NavLink } from "react-router-dom";
 import supabase from "../connector";
@@ -11,7 +11,7 @@ const Register = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     setLoading(true);
     let { email, password, repassword } = e;
     if (password !== repassword) {
@@ -19,24 +19,31 @@ const Register = () => {
       setLoading(false);
       return;
     }
-    supabase.auth.signUp({ 
-      email : email, 
-      password : password 
-    })
-    .then((res) => {
-      if (res.error) {
-        setError(res.error.message);
-        setLoading(false);
-        return;
-      }
-      setLoading(false);
-      setSuccess(true);
-      e.target.reset();
-    })
-    .catch((err) => {
-      setError(err.message);
-      setLoading(false);
+
+    const {error: signUpError } = await supabase.auth.signUp({ 
+      email: email, 
+      password: password 
     });
+
+    if (signUpError) {
+      setError(signUpError.message);
+      setLoading(false);
+      return;
+    }
+
+    const { error: insertError } = await supabase
+      .from('users')
+      .insert([{ email: email }]);
+
+    if (insertError) {
+      setError(insertError.message);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(false);
+    setSuccess(true);
+    message.success("Registrasi berhasil. Silakan cek email Anda untuk verifikasi.");
   }
 
   useEffect(() => {
