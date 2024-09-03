@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Form, Input, Checkbox, Button } from "antd";
-import { LockOutlined, MailOutlined } from "@ant-design/icons";
+import { Form, Input, Checkbox, Button, message } from "antd";
+import { LockOutlined, MailOutlined, GoogleOutlined } from "@ant-design/icons";
 import { NavLink } from "react-router-dom";
 import supabase from "../connector";
 import AlertMessage from "./Alert";
@@ -10,20 +10,59 @@ const Login = () => {
   const [error, setError] = useState(false);
   
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     setLoading(true);
     let { email, password } = e;
-    supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
-      })
-      .then((res) => {
-        console.log(res);
-        setLoading(false);
-        if (res.error) {
-          setError(true);
-        }
-      });
+    
+    const {data: user, error: fetchError} = await supabase
+    .from('users')
+    .select('*')
+    .eq('email', email)
+    .single();
+
+    if (fetchError || !user) {
+      setLoading(false);
+      setError(true);
+      message.error("Pengguna tidak ditemukan, silahkan mendaftar terlebih dahulu");
+      return;
+    }
+
+    const {error : signInError} = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
+
+    // setLoading(false);
+    if (signInError) {
+      setLoading(false);
+      setError(true);
+      message.error("Email atau Password salah");
+    } else {
+      message.success("Berhasil Login");
+    }
+
+
+    // supabase.auth.signInWithPassword({
+    //     email: email,
+    //     password: password,
+    //   })
+    //   .then((res) => {
+    //     console.log(res);
+    //     setLoading(false);
+    //     if (res.error) {
+    //       setError(true);
+    //     }
+    //   });
+  }
+
+  const handleGoogleLogin = async () => {
+    const { user,session, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+    });
+    if (error) {
+      message.error("Gagal Login dengan Google");
+    }
+    console.log(user, session);
   }
 
   return (
@@ -85,6 +124,15 @@ const Login = () => {
         <Form.Item style={{ marginBottom: "0px" }}>
           <Button block="true" type="primary" htmlType="submit" loading={loading} disabled={loading}>
             Log in
+          </Button>
+          <Button
+            block
+            icon={<GoogleOutlined />}
+            onClick={handleGoogleLogin}
+            disabled={loading}
+            style={{ marginTop: '10px' }}
+          >
+            Sign in with Google
           </Button>
           <div
             style={{ marginTop: "1rem", textAlign: "center", width: "100%" }}
