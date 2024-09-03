@@ -9,19 +9,29 @@ import ListMahasiswa from "./mahasiswa/listMahasiswa";
 const App = () => {
   const [session, setSession] = useState(false);
 
+  window.addEventListener("beforeunload", handleBeforeUnload);
+
+  function handleBeforeUnload(e) {
+    e.preventDefault();
+    supabase.auth.signOut();
+  }
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-    })
+      setSession(session);
+    });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-    })
+      setSession(session);
+    });
 
-    return () => subscription.unsubscribe()
-  }, [])
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
 
   if (!session) {
     return (
